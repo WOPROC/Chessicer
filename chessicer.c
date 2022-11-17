@@ -8,7 +8,7 @@
 
 //******************************************\\
 
-// macros \\
+// macros \\ e
 
 #define setBit(bitNum, sqr) (bitNum |= (1ULL << sqr))
 #define get_bit(bitNum, sqr) (bitNum & (1ULL << sqr))
