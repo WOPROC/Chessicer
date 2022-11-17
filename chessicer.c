@@ -8,7 +8,7 @@
 
 //******************************************\\
 
-// macros \\ e
+// macros \\
 
 #define setBit(bitNum, sqr) (bitNum |= (1ULL << sqr))
 #define get_bit(bitNum, sqr) (bitNum & (1ULL << sqr))
@@ -59,25 +59,6 @@ void printBoard(U64 bit)
 //              Constants                   \\
 //******************************************\\
 
-
-//
-
-/* 
-* This is what notAFile is:
-
-  8  0  1  1  1  1  1  1  1
-  7  0  1  1  1  1  1  1  1
-  6  0  1  1  1  1  1  1  1
-  5  0  1  1  1  1  1  1  1
-  4  0  1  1  1  1  1  1  1
-  3  0  1  1  1  1  1  1  1
-  2  0  1  1  1  1  1  1  1
-  1  0  1  1  1  1  1  1  1
-
-     A  B  C  D  E  F  G  H
-
-
-*/
 const U64 notAfile = 18374403900871474942ULL;
 const U64 notHfile = 9187201950435737471ULL;
 const U64 notHGfile = 4557430888798830399ULL;
@@ -95,6 +76,8 @@ const U64 notABfile = 18229723555195321596ULL;
 U64 pawnAtks[2][64];
 
 U64 knightAtks[64];
+U64 kingAtks[64];
+
 
 U64 genPawnAtks(int side, int square)
 {
@@ -137,11 +120,72 @@ U64 genKnightAtks(int sqr) {
     return attks;
 
 }
+U64 genKingAtks(int sqr){
+    U64 attks = 0ULL; //"attack map"
+    U64 bitboard = 0ULL; //the board
+    setBit(bitboard, sqr);
+
+    //make king attacks
+    if(bitboard >>8) attks |= (bitboard >> 8);
+    if((bitboard>>9) & notHfile) attks |= (bitboard >> 9);
+    if ((bitboard >> 7) & notAfile) attks |= (bitboard >> 7);
+    if ((bitboard >> 1) && notHfile) attks |= (bitboard >> 1);
+    if (bitboard << 8) attks |= (bitboard << 8);
+    if ((bitboard << 9) & notAfile) attks |= (bitboard << 9);
+    if ((bitboard << 7) & notHfile) attks |= (bitboard << 7);
+    if ((bitboard << 1) && notAfile) attks |= (bitboard << 1);
+
+ 
+
+    return attks;
+
+}
+U64 genBishopAtks(int sqr) {
+    U64 attks = 0ULL;
+
+    //rank, files
+    int r, f;
+    
+    //target ranks & files
+    int tr = sqr / 8;
+    int tf = sqr % 8;
+
+    for (r = tr + 1, f = tf + 1; r <= 6 && f <= 6; r++, f++)
+        attks |= (1ULL << (r * 8 + f)); 
+    for (r = tr - 1, f = tf + 1; r >= 1 && f <= 6; r--, f++)
+        attks |= (1ULL << (r * 8 + f));
+    for (r = tr + 1, f = tf - 1; r <= 6 && f >= 1; r++, f--)
+        attks |= (1ULL << (r * 8 + f));
+    for (r = tr - 1, f = tf - 1; r >= 1 && f >= 1; r--, f--)
+        attks |= (1ULL << (r * 8 + f));
+
+
+    return attks;
+}
+U64 genRookAtks(int sqr) {
+    U64 attks = 0ULL;
+
+    //rank, files
+    int r, f;
+
+    //target ranks & files
+    int tr = sqr / 8;
+    int tf = sqr % 8;
+    for (r = tr + 1; r <= 6; r++) attks |= (1ULL << (r * 8 + tf));
+    for (r = tr - 1; r >= 1; r--) attks |= (1ULL << (r * 8 + tf));
+    for (f = tf + 1; f <= 6; f++) attks |= (1ULL << (tr * 8 + f));
+    for (f = tf - 1; f >= 1; f--) attks |= (1ULL << (tr * 8 + f));
+
+    return attks;
+}
+
 //leaper pieces
 void initLeaperAttacks() {
     for (int sqr = 0; sqr < 64; sqr++) {
         pawnAtks[white][sqr] = genPawnAtks(white, sqr);
         pawnAtks[black][sqr] = genPawnAtks(black, sqr);
+        knightAtks[sqr] = genKnightAtks(sqr);
+        kingAtks[sqr] = genKingAtks(sqr);
     }
 }
 
@@ -155,6 +199,6 @@ void initLeaperAttacks() {
 int main()
 {
     initLeaperAttacks();
-    printBoard(genKnightAtks(g4));
+    printBoard(genRookAtks(e4));
     return 0;
 }
