@@ -38,7 +38,8 @@ static inline int index_LS1stB(U64 board)
 {
     if (board) //make sure board has values
     {
-        return countBits((board & -1*board) - 1);
+        return countBits((board & -1*board) - 1); //LSB
+        
     }
     else
         return -1; //useless / invalid value
