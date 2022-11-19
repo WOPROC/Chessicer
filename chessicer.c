@@ -5,7 +5,6 @@
 
 
 
-
 //******************************************\\
 
 // bit manipulation \\
@@ -45,6 +44,29 @@ static inline int index_LS1stB(U64 board)
         return -1; //useless / invalid value
 }
 
+U64 setOccupancy(int index, int maskBits, U64 atkMsk)
+{
+    U64 occupancy = 0ULL;
+
+    //loop over range of bits
+    for (int c = 0; c < maskBits; c++)
+    {
+        int theSqr = index_LS1stB(atkMsk);
+        popBit(atkMsk, theSqr); //remove LSB from mask
+
+        if (index & (1 << c))
+        {
+            occupancy |= (1ULL << theSqr);
+        }
+
+       
+    }
+
+
+
+
+    return occupancy;
+}
 
 // enumerations \\
 
@@ -309,16 +331,11 @@ void initLeaperAttacks() {
 int main()
 {
     initLeaperAttacks();
+    U64 attackMask = genRookAtks(a1);
 
-    //initalize taken squares
-    U64 usedSpaces = 0ULL;
-    setBit(usedSpaces, d7);
-    setBit(usedSpaces, d2);
-    setBit(usedSpaces, d1);
-    setBit(usedSpaces, b4);
-    setBit(usedSpaces, g4);
+    U64 boarde = setOccupancy(4095, countBits(attackMask), attackMask);
     
-    printf("position: %s\n", sqr2Cord[index_LS1stB(usedSpaces)]);
+    printBoard(boarde);
 
     return 0;
 }
